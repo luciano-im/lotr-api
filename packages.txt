@@ -1,0 +1,4 @@
+FastAPI
+Alembic
+Poetry
+Python-Decouple
