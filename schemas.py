@@ -1,14 +1,15 @@
 from pydantic import BaseModel, Field
 
+
 class BookScheme(BaseModel):
-    id: str = Field(alias='id_')
+    id: str = Field(alias='_id')
     name: str
 
     class Config:
         orm_mode = True
 
 class ChapterScheme(BaseModel):
-    id: str = Field(alias='id_')
+    id: str = Field(alias='_id')
     chapter_name: str = Field(alias='chapterName')
     book: str
 
@@ -16,7 +17,7 @@ class ChapterScheme(BaseModel):
         orm_mode = True
 
 class CharacterScheme(BaseModel):
-    id: str = Field(default=None, alias='id_')
+    id: str = Field(alias='_id')
     name: str
     wiki_url: str | None = Field(default=None, alias='wikiUrl')
     race: str | None = None
@@ -32,7 +33,7 @@ class CharacterScheme(BaseModel):
         orm_mode = True
 
 class MovieScheme(BaseModel):
-    id: str = Field(alias='id_')
+    id: str = Field(alias='_id')
     name: str
     runtime_minutes: int = Field(alias='runtimeInMinutes')
     budget_millions: int = Field(alias='budgetInMillions')
@@ -45,7 +46,7 @@ class MovieScheme(BaseModel):
         orm_mode = True
 
 class QuoteScheme(BaseModel):
-    id: str = Field(alias='id_')
+    id: str = Field(alias='_id')
     dialog: str
     movie: str
     character: str
