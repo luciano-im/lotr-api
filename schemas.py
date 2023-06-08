@@ -47,7 +47,7 @@ class MovieScheme(BaseModel):
 
 class QuoteScheme(BaseModel):
     id: str = Field(alias='_id')
-    dialog: str
+    dialog: str | None
     movie: str
     character: str
 

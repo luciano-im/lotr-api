@@ -14,14 +14,17 @@ def get_chapters(db: Session, book: str):
     return db.scalars(query)
 
 
-def get_characters(db: Session, name: str = None, realm: str = None, gender: str = None):
-    query = select(Character)
+def get_characters(db: Session, name: str = None, realm: str = None, gender: str = None, race: str = None):
+    filters = []
     if name:
-        query.where(Character.name.contains(name))
+        filters.append(Character.name.contains(name))
     if realm:
-        query.where(Character.realm.contains(realm))
+        filters.append(Character.realm.contains(realm))
     if gender:
-        query.where(Character.gender.contains(gender))
+        filters.append(Character.gender == gender)
+    if race:
+        filters.append(Character.race == race)
+    query = select(Character).where(*filters)
     return db.scalars(query)
 
 
@@ -31,11 +34,12 @@ def get_movies(db: Session):
 
 
 def get_quotes(db: Session, dialog: str = None, movie: str = None, character: str = None):
-    query = select(Quote)
+    filters = []
     if dialog:
-        query.where(Quote.dialog.contains(dialog))
+        filters.append(Quote.dialog.contains(dialog))
     if movie:
-        query.where(Quote.movie == movie)
+        filters.append(Quote.movie == movie)
     if character:
-        query.where(Quote.character == character)
+        filters.append(Quote.character == character)
+    query = select(Quote).where(*filters)
     return db.scalars(query)
