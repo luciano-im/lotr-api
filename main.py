@@ -1,10 +1,10 @@
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 from schemas import BookScheme, ChapterScheme, CharacterScheme, MovieScheme, QuoteScheme
+from enumerations import Gender, Realm, Race
 from crud import get_books, get_chapters, get_characters, get_movies, get_quotes
 from database import SessionLocal
 
-from enum import Enum
 
 app = FastAPI()
 
@@ -19,7 +19,7 @@ def get_db():
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Welcome to The Lord Of The Rings API"}
 
 
 @app.get("/books/", response_model=list[BookScheme])
@@ -35,8 +35,11 @@ async def chapters(book: str, db: Session = Depends(get_db)):
 
 
 @app.get("/characters/", response_model=list[CharacterScheme])
-async def characters(name: str = "", realm: str = None, gender: str = None, race: str = None, db: Session = Depends(get_db)):
-    characters = get_characters(db, name=name, realm=realm, gender=gender, race=race)
+async def characters(name: str = "", realm: Realm = None, gender: Gender = None, race: Race = None, db: Session = Depends(get_db)):
+    realm_value = realm.value if realm else None
+    gender_value = gender.value if gender else None
+    race_value = race.value if race else None
+    characters = get_characters(db, name=name, realm=realm_value, gender=gender_value, race=race_value)
     return list(characters)
 
 
@@ -50,3 +53,21 @@ async def movies(db: Session = Depends(get_db)):
 async def quotes(dialog: str = None, movie: str = None, character: str = None, db: Session = Depends(get_db)):
     quotes = get_quotes(db, dialog=dialog, movie=movie, character=character)
     return list(quotes)
+
+
+@app.get("/realm/", response_model=list[str])
+async def realm():
+    realm = [r.value for r in Realm]
+    return realm
+
+
+@app.get("/gender/", response_model=list[str])
+async def gender():
+    gender = [r.value for r in Gender]
+    return gender
+
+
+@app.get("/race/", response_model=list[str])
+async def race():
+    race = [r.value for r in Race]
+    return race
