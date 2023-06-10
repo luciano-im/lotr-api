@@ -9,6 +9,11 @@ def get_books(db: Session):
     return db.scalars(query)
 
 
+def get_book(db: Session, book: str):
+    query = select(Book).where(Book._id == book)
+    return db.scalars(query)
+
+
 def get_chapters(db: Session, book: str):
     query = select(Chapter).where(Chapter.book == book)
     return db.scalars(query)

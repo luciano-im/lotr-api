@@ -2,7 +2,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 from schemas import BookScheme, ChapterScheme, CharacterScheme, MovieScheme, QuoteScheme
 from enumerations import Gender, Realm, Race
-from crud import get_books, get_chapters, get_characters, get_movies, get_quotes
+from crud import get_books, get_book, get_chapters, get_characters, get_movies, get_quotes
 from database import SessionLocal
 
 
@@ -30,6 +30,9 @@ async def books(db: Session = Depends(get_db)):
 
 @app.get("/chapters/{book}", response_model=list[ChapterScheme])
 async def chapters(book: str, db: Session = Depends(get_db)):
+    book_exists = get_book(db, book)
+    if len(list(book_exists)) == 0:
+        raise HTTPException(status_code=404, detail="Book not found")
     chapters = get_chapters(db, book=book)
     return list(chapters)
 
