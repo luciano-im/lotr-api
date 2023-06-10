@@ -10,6 +10,7 @@ python = "^3.10"
 fastapi = "^0.96.0"
 uvicorn = "^0.22.0"
 sqlalchemy = "^2.0.15"
+python-multipart = "^0.0.6"
 
 
 [build-system]
