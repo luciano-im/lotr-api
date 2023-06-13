@@ -1,12 +1,17 @@
-from fastapi import Depends, FastAPI, HTTPException
+import os
+import shutil
+from fastapi import Depends, FastAPI, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 from schemas import BookScheme, ChapterScheme, CharacterScheme, MovieScheme, QuoteScheme
 from enumerations import Gender, Realm, Race
-from crud import get_books, get_book, get_chapters, get_characters, get_movies, get_quotes
+from crud import get_books, get_book, get_chapters, get_characters, get_character, get_movies, get_quotes
 from database import SessionLocal
 
 
 app = FastAPI()
+
+CHARACTER_PICTURE_FOLDER = os.path.join(os.path.dirname(__file__), 'character-picture')
+
 
 # Dependency
 def get_db():
@@ -19,7 +24,7 @@ def get_db():
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to The Lord Of The Rings API"}
+    return {"detail": "Welcome to The Lord Of The Rings API"}
 
 
 @app.get("/books/", response_model=list[BookScheme])
@@ -44,6 +49,28 @@ async def characters(name: str = "", realm: Realm = None, gender: Gender = None,
     race_value = race.value if race else None
     characters = get_characters(db, name=name, realm=realm_value, gender=gender_value, race=race_value)
     return list(characters)
+
+
+# Return a 204 status code (No Content)
+@app.post("/characters/{character}/upload_picture", status_code=204)
+async def upload_character_picture(character: str, file: UploadFile, db: Session = Depends(get_db)):
+    character_exists = get_character(db, character)
+    if len(list(character_exists)) == 0:
+        raise HTTPException(status_code=404, detail="Character not found")
+    
+    if not os.path.exists(CHARACTER_PICTURE_FOLDER):
+        try:
+            os.makedirs(CHARACTER_PICTURE_FOLDER)
+        except OSError:
+            raise HTTPException(status_code=500, detail="Pictures directory don't exists")
+    
+    filename = character + os.path.splitext(file.filename)[1]
+    file_path = os.path.join(CHARACTER_PICTURE_FOLDER, filename)
+    with open(file_path, 'wb') as destination:
+        try:
+            shutil.copyfileobj(file.file, destination)
+        except:
+            raise HTTPException(status_code=500, detail="File couldn't be uploaded")
 
 
 @app.get("/movies/", response_model=list[MovieScheme])

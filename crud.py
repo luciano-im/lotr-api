@@ -33,6 +33,11 @@ def get_characters(db: Session, name: str = None, realm: str = None, gender: str
     return db.scalars(query)
 
 
+def get_character(db: Session, character: str):
+    query = select(Character).where(Character._id == character)
+    return db.scalars(query)
+
+
 def get_movies(db: Session):
     query = select(Movie)
     return db.scalars(query)
