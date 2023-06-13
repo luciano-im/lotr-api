@@ -52,7 +52,7 @@ async def characters(name: str = "", realm: Realm = None, gender: Gender = None,
 
 
 # Return a 204 status code (No Content)
-@app.post("/characters/{character}/upload_picture", status_code=204)
+@app.post("/characters/{character}/picture", status_code=204)
 async def upload_character_picture(character: str, file: UploadFile, db: Session = Depends(get_db)):
     character_exists = get_character(db, character)
     if len(list(character_exists)) == 0:
@@ -70,7 +70,27 @@ async def upload_character_picture(character: str, file: UploadFile, db: Session
         try:
             shutil.copyfileobj(file.file, destination)
         except:
-            raise HTTPException(status_code=500, detail="File couldn't be uploaded")
+            raise HTTPException(status_code=500, detail="Picture couldn't be uploaded")
+
+
+@app.delete("/characters/{character}/picture", status_code=204)
+async def delete_character_picture(character: str, db: Session = Depends(get_db)):
+    character_exists = get_character(db, character)
+    if len(list(character_exists)) == 0:
+        raise HTTPException(status_code=404, detail="Character not found")
+    
+    if not os.path.exists(CHARACTER_PICTURE_FOLDER):
+        try:
+            os.makedirs(CHARACTER_PICTURE_FOLDER)
+        except OSError:
+            raise HTTPException(status_code=500, detail="Pictures directory don't exists")
+    
+    filename = f'{character}.jpg'
+    file_path = os.path.join(CHARACTER_PICTURE_FOLDER, filename)
+    try:
+        os.remove(file_path)
+    except:
+        raise HTTPException(status_code=500, detail="Picture couldn't be deleted")
 
 
 @app.get("/movies/", response_model=list[MovieScheme])
