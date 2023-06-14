@@ -2,24 +2,24 @@ from pydantic import BaseModel, Field
 
 
 class BookScheme(BaseModel):
-    id: str = Field(alias='_id')
+    id: str
     name: str
 
     class Config:
         orm_mode = True
 
 class ChapterScheme(BaseModel):
-    id: str = Field(alias='_id')
-    chapter_name: str = Field(alias='chapterName')
+    id: str
+    chapter_name: str
     book: str
 
     class Config:
         orm_mode = True
 
 class CharacterScheme(BaseModel):
-    id: str = Field(alias='_id')
+    id: str
     name: str
-    wiki_url: str | None = Field(default=None, alias='wikiUrl')
+    wiki_url: str | None = Field(default=None)
     race: str | None = None
     birth: str | None = None
     gender: str | None = None
@@ -33,20 +33,20 @@ class CharacterScheme(BaseModel):
         orm_mode = True
 
 class MovieScheme(BaseModel):
-    id: str = Field(alias='_id')
+    id: str
     name: str
-    runtime_minutes: int = Field(alias='runtimeInMinutes')
-    budget_millions: int = Field(alias='budgetInMillions')
-    revenue_millions: int = Field(alias='boxOfficeRevenueInMillions')
-    award_nominations: int = Field(alias='academyAwardNominations')
-    award_wins: int = Field(alias='academyAwardWins')
-    rotten_tomatoes_score: float = Field(alias='rottenTomatoesScore')
+    runtime_minutes: int
+    budget_millions: int
+    revenue_millions: int
+    award_nominations: int
+    award_wins: int
+    rotten_tomatoes_score: float
 
     class Config:
         orm_mode = True
 
 class QuoteScheme(BaseModel):
-    id: str = Field(alias='_id')
+    id: str
     dialog: str | None
     movie: str
     character: str
