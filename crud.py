@@ -10,7 +10,7 @@ def get_books(db: Session):
 
 
 def get_book(db: Session, book: str):
-    query = select(Book).where(Book._id == book)
+    query = select(Book).where(Book.id == book)
     return db.scalars(query)
 
 
@@ -34,7 +34,7 @@ def get_characters(db: Session, name: str = None, realm: str = None, gender: str
 
 
 def get_character(db: Session, character: str):
-    query = select(Character).where(Character._id == character)
+    query = select(Character).where(Character.id == character)
     return db.scalars(query)
 
 
