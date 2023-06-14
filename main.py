@@ -1,6 +1,7 @@
 import os
 import shutil
 from fastapi import Depends, FastAPI, HTTPException, UploadFile
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from schemas import BookScheme, ChapterScheme, CharacterScheme, MovieScheme, QuoteScheme
 from enumerations import Gender, Realm, Race
@@ -10,7 +11,11 @@ from database import SessionLocal
 
 app = FastAPI()
 
-CHARACTER_PICTURE_FOLDER = os.path.join(os.path.dirname(__file__), 'character-picture')
+STATIC_FILES_DIRECTORY = os.path.join(os.path.dirname(__file__), 'static')
+CHARACTER_PICTURE_DIRECTORY = os.path.join(STATIC_FILES_DIRECTORY, 'img', 'character-picture')
+
+# Mount static files instance
+app.mount("/static", StaticFiles(directory=STATIC_FILES_DIRECTORY), name="static")
 
 
 # Dependency
@@ -58,14 +63,14 @@ async def upload_character_picture(character: str, file: UploadFile, db: Session
     if len(list(character_exists)) == 0:
         raise HTTPException(status_code=404, detail="Character not found")
     
-    if not os.path.exists(CHARACTER_PICTURE_FOLDER):
+    if not os.path.exists(CHARACTER_PICTURE_DIRECTORY):
         try:
-            os.makedirs(CHARACTER_PICTURE_FOLDER)
+            os.makedirs(CHARACTER_PICTURE_DIRECTORY)
         except OSError:
             raise HTTPException(status_code=500, detail="Pictures directory don't exists")
     
     filename = character + os.path.splitext(file.filename)[1]
-    file_path = os.path.join(CHARACTER_PICTURE_FOLDER, filename)
+    file_path = os.path.join(CHARACTER_PICTURE_DIRECTORY, filename)
     with open(file_path, 'wb') as destination:
         try:
             shutil.copyfileobj(file.file, destination)
@@ -79,14 +84,14 @@ async def delete_character_picture(character: str, db: Session = Depends(get_db)
     if len(list(character_exists)) == 0:
         raise HTTPException(status_code=404, detail="Character not found")
     
-    if not os.path.exists(CHARACTER_PICTURE_FOLDER):
+    if not os.path.exists(CHARACTER_PICTURE_DIRECTORY):
         try:
-            os.makedirs(CHARACTER_PICTURE_FOLDER)
+            os.makedirs(CHARACTER_PICTURE_DIRECTORY)
         except OSError:
             raise HTTPException(status_code=500, detail="Pictures directory don't exists")
     
     filename = f'{character}.jpg'
-    file_path = os.path.join(CHARACTER_PICTURE_FOLDER, filename)
+    file_path = os.path.join(CHARACTER_PICTURE_DIRECTORY, filename)
     try:
         os.remove(file_path)
     except:
