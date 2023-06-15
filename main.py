@@ -27,6 +27,20 @@ def get_db():
         db.close()
 
 
+def check_not_existing_object(db, function, entity, status_code, message):
+    entity_exists = function(db, entity)
+    if len(list(entity_exists)) == 0:
+        raise HTTPException(status_code=status_code, detail=message)
+
+
+def create_pictures_directory_if_not_exists():
+    if not os.path.exists(CHARACTER_PICTURE_DIRECTORY):
+        try:
+            os.makedirs(CHARACTER_PICTURE_DIRECTORY)
+        except OSError:
+            raise HTTPException(status_code=500, detail="Pictures directory don't exists")
+
+
 @app.get("/")
 async def root():
     return {"detail": "Welcome to The Lord Of The Rings API"}
@@ -40,9 +54,7 @@ async def books(db: Session = Depends(get_db)):
 
 @app.get("/chapters/{book}", response_model=list[ChapterScheme])
 async def chapters(book: str, db: Session = Depends(get_db)):
-    book_exists = get_book(db, book)
-    if len(list(book_exists)) == 0:
-        raise HTTPException(status_code=404, detail="Book not found")
+    check_not_existing_object(db=db, function=get_book, entity=book, status_code=404, message="Book not found")
     chapters = get_chapters(db, book=book)
     return list(chapters)
 
@@ -59,15 +71,8 @@ async def characters(name: str = "", realm: Realm = None, gender: Gender = None,
 # Return a 204 status code (No Content)
 @app.post("/characters/{character}/picture", status_code=204)
 async def upload_character_picture(character: str, file: UploadFile, db: Session = Depends(get_db)):
-    character_exists = get_character(db, character)
-    if len(list(character_exists)) == 0:
-        raise HTTPException(status_code=404, detail="Character not found")
-    
-    if not os.path.exists(CHARACTER_PICTURE_DIRECTORY):
-        try:
-            os.makedirs(CHARACTER_PICTURE_DIRECTORY)
-        except OSError:
-            raise HTTPException(status_code=500, detail="Pictures directory don't exists")
+    check_not_existing_object(db=db, function=get_character, entity=character, status_code=404, message="Character not found")
+    create_pictures_directory_if_not_exists()
     
     filename = character + os.path.splitext(file.filename)[1]
     file_path = os.path.join(CHARACTER_PICTURE_DIRECTORY, filename)
@@ -81,15 +86,8 @@ async def upload_character_picture(character: str, file: UploadFile, db: Session
 
 @app.delete("/characters/{character}/picture", status_code=204)
 async def delete_character_picture(character: str, db: Session = Depends(get_db)):
-    character_exists = get_character(db, character)
-    if len(list(character_exists)) == 0:
-        raise HTTPException(status_code=404, detail="Character not found")
-    
-    if not os.path.exists(CHARACTER_PICTURE_DIRECTORY):
-        try:
-            os.makedirs(CHARACTER_PICTURE_DIRECTORY)
-        except OSError:
-            raise HTTPException(status_code=500, detail="Pictures directory don't exists")
+    check_not_existing_object(db=db, function=get_character, entity=character, status_code=404, message="Character not found")
+    create_pictures_directory_if_not_exists
     
     filename = f'{character}.jpg'
     file_path = os.path.join(CHARACTER_PICTURE_DIRECTORY, filename)
