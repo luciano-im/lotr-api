@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from database import Book, Chapter, Character, Movie, Quote
@@ -37,6 +37,11 @@ def get_character(db: Session, character: str):
     query = select(Character).where(Character.id == character)
     return db.scalars(query)
 
+
+def update_character_picture(db: Session, character: str, filename: str | None):
+    query = update(Character).where(Character.id == character).values(picture=filename)
+    db.execute(query)
+    db.commit()
 
 def get_movies(db: Session):
     query = select(Movie)

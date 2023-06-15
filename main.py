@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from schemas import BookScheme, ChapterScheme, CharacterScheme, MovieScheme, QuoteScheme
 from enumerations import Gender, Realm, Race
-from crud import get_books, get_book, get_chapters, get_characters, get_character, get_movies, get_quotes
+from crud import get_books, get_book, get_chapters, get_characters, get_character, update_character_picture, get_movies, get_quotes
 from database import SessionLocal
 
 
@@ -74,6 +74,7 @@ async def upload_character_picture(character: str, file: UploadFile, db: Session
     with open(file_path, 'wb') as destination:
         try:
             shutil.copyfileobj(file.file, destination)
+            update_character_picture(db, character, filename)
         except:
             raise HTTPException(status_code=500, detail="Picture couldn't be uploaded")
 
@@ -94,6 +95,7 @@ async def delete_character_picture(character: str, db: Session = Depends(get_db)
     file_path = os.path.join(CHARACTER_PICTURE_DIRECTORY, filename)
     try:
         os.remove(file_path)
+        update_character_picture(db, character, None)
     except:
         raise HTTPException(status_code=500, detail="Picture couldn't be deleted")
 
